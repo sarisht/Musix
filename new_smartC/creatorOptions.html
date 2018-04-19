@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" type="text/css" href="creatorOptions.css">
+
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+
+</head>
+<body>
+    <h3>Balance: </h3>
+    <div id = "balance"></div>
+    <div class="container1">
+
+        <h1>Upload Details of Media</h1>
+
+        <h2 id="addMedia"></h2>
+
+        <label for="name" class="col-lg-2 control-label">Media Title</label>
+        <input id="title" type="text">
+
+        <label for="name" class="col-lg-2 control-label">Price for individual buyer [Ether]</label>
+        <input id="indi_price" type="text">
+
+        <label for="name" class="col-lg-2 control-label">Price for Company [Ether]</label>
+        <input id="comp_price" type="text">
+
+        <label for="name" class="col-lg-2 control-label">Stakeholders Number(0-99) [comma separated]</label>
+        <input id="stakeholders" type="text">
+
+        <label for="name" class="col-lg-2 control-label">Stakeholders Share Percentage [comma separated]</label>
+        <input id="stakes" type="text">
+
+        <button id="button1">Add Media</button>
+    </div>
+
+    <div>
+        <select id = "ownedMedia" onchange="myFunction(this.value)">
+            <option value = ""> "Please Select your Media"</option>
+		</select>
+		<select id = "created_address_list">
+			<option value = ""> "Please Select an Address"</option>
+		</select>
+		<br>
+        <input id = "link" type ="text">
+		<button id = "SendLink"> Send Encrypted Link</button>
+    </div>
+
+    <div id = "Display">
+    </div>
+
+	
+	<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+	<script>
+        if (typeof web3 !== 'undefined') {
+            web3 = new Web3(web3.currentProvider);
+        } else {
+            // set the provider you want from Web3.providers
+            web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        }
+        web3.eth.defaultAccount = localStorage.getItem('address');
+        
+        var abi = [
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "getIndiPrice",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			},
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "bought",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "media_by_owner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "media_boughtby",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			},
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "link_sent",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "getMedia",
+		"outputs": [
+			{
+				"name": "id",
+				"type": "bytes32"
+			},
+			{
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"name": "title",
+				"type": "string"
+			},
+			{
+				"name": "price_indi",
+				"type": "uint256"
+			},
+			{
+				"name": "price_comp",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "b",
+				"type": "string"
+			}
+		],
+		"name": "setPublicKey",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			},
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "links",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "title",
+				"type": "string"
+			},
+			{
+				"name": "indi_price",
+				"type": "uint256"
+			},
+			{
+				"name": "comp_price",
+				"type": "uint256"
+			},
+			{
+				"name": "stakeholders",
+				"type": "address[]"
+			},
+			{
+				"name": "stakes",
+				"type": "uint256[]"
+			}
+		],
+		"name": "addEntry",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "num_bought",
+		"outputs": [
+			{
+				"name": "",
+				"type": "int256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "media_id",
+				"type": "bytes32"
+			}
+		],
+		"name": "buy",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "users",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "PublicKey",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"name": "media_id",
+				"type": "bytes32"
+			},
+			{
+				"name": "link",
+				"type": "string"
+			}
+		],
+		"name": "sendLink",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "i",
+				"type": "uint256"
+			}
+		],
+		"name": "setRole",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "num_mybought",
+		"outputs": [
+			{
+				"name": "",
+				"type": "int256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "num_media",
+		"outputs": [
+			{
+				"name": "",
+				"type": "int256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "media_list",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "num_owned",
+		"outputs": [
+			{
+				"name": "",
+				"type": "int256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "getCompPrice",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "mybought",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "title",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "price_indi",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "price_comp",
+				"type": "uint256"
+			}
+		],
+		"name": "AddedMedia",
+		"type": "event"
+	}
+]
+		var add= "0x2ced8b6370e952ee8476bf9094442fa0dc1de4d3";
+        var myContract = web3.eth.contract(abi);
+        var contract_data = myContract.at(add);
+        web3.eth.getBalance(web3.eth.defaultAccount, function (error, wei) {
+            if (!error) {
+                var balance = web3.fromWei(wei, 'ether');
+                document.getElementById("balance").innerHTML = balance + " ETH";
+            }
+        });
+        var num_owned = contract_data.num_owned(web3.eth.defaultAccount);
+        for (var i = 0; i< num_owned;i++){
+			var temp_media = contract_data.media_by_owner.call(web3.eth.defaultAccount,i);
+			var new_option = document.createElement("OPTION");
+			var media = contract_data.getMedia(temp_media);
+			new_option.value = media[0];
+			new_option.innerHTML = media[2];
+			document.getElementById("ownedMedia").appendChild(new_option);
+        };
+        function myFunction(media_id){
+			var num_mybought = contract_data.num_mybought.call(media_id);
+			var list = document.getElementById("created_address_list");
+			while (list.hasChildNodes()) {
+				list.removeChild(list.childNodes[0]);
+			}
+			var item = document.getElementById("Display").childNodes[0];
+			var new_option = document.createElement("OPTION")
+			new_option.value = "";
+			new_option.innerHTML = "Please Select an address";
+			document.getElementById("created_address_list").appendChild(new_option);
+			for (var i = 0; i < num_mybought;i++){
+				var t = contract_data.mybought.call(media_id,i);
+				if (!contract_data.link_sent.call(media_id,t)){
+					var new_option = document.createElement("OPTION")
+					new_option.value = t;
+					new_option.innerHTML = t;
+					document.getElementById("created_address_list").appendChild(new_option);
+				}
+			}
+        };
+
+    function encrypt(data,key){
+
+    }
+        
+    $("#button1").click(function() {
+            var stakeholders_string = ($("#stakeholders").val()).split(",");
+            var stakeholders = new Array();
+            for (var i = 0; i< stakeholders_string.length;i++){
+                stakeholders.push(web3.eth.accounts[parseInt(stakeholders_string[i])]);
+            }
+            var stakes_string = ($("#stakes").val()).split(",");
+            var stakes = new Array();
+            for (var i = 0; i< stakes_string.length;i++){
+                stakes.push(parseInt(stakes_string[i]));
+            }
+            contract_data.addEntry($("#title").val(), web3.toWei($("#indi_price").val(),'ether') ,web3.toWei($("#comp_price").val(),'ether'), stakeholders, stakes,{gas:900000});
+            window.location.reload();
+	   });
+
+       $("#SendLink").click(function(){
+           contract_data.sendLink($("#created_address_list").val(),$("#ownedMedia").val(),$("#link").val(),{gas:670000});
+           window.location.reload();
+       })
+
+    // at this point http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js should be loaded
+    function encypt(){
+        var data  = $("#link").val()
+        var key = $("creeated_address_list").val()
+        var encrypted = Crypto.AES.encrypt(data, key).toString();
+        document.getElementById("EncryptedLink").innerHTML = "Encrypted: "+encrypted;
+    }
+
+    </script>
+
+</body>
+</html>

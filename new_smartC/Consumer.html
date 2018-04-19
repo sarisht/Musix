@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+
+</head>
+<body >
+    <h3>Balance: </h3>
+    <div id = "balance">
+    </div>
+
+    <div class="container1">
+        <h3>Select media</h3>
+        <select id="Buyable" onchange="getPrice(this.value)">
+            <option value="">Please select</option>
+        </select>
+        <p id = "Price"></p>
+        <button id="Buy">Buy</button>
+	</div>
+	
+	<div class = "boughtitems">
+		<h3>Access Links of bought media whose link have been given</h3>
+		<select id="Bought" onchange="getLink(this.value)">
+				<option value="">Please select</option>
+		</select>
+		<p id = "LINK"></p>
+		<button id="Decrypt">Decrypt</button>
+
+	</div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script>
+        if (typeof web3 !== 'undefined') {
+            web3 = new Web3(web3.currentProvider);
+        } else {
+            web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        }
+
+        web3.eth.defaultAccount = localStorage.getItem('address');
+        var abi = [
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "getIndiPrice",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			},
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "bought",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "media_by_owner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "media_boughtby",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			},
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "link_sent",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "getMedia",
+		"outputs": [
+			{
+				"name": "id",
+				"type": "bytes32"
+			},
+			{
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"name": "title",
+				"type": "string"
+			},
+			{
+				"name": "price_indi",
+				"type": "uint256"
+			},
+			{
+				"name": "price_comp",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "b",
+				"type": "string"
+			}
+		],
+		"name": "setPublicKey",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			},
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "links",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "title",
+				"type": "string"
+			},
+			{
+				"name": "indi_price",
+				"type": "uint256"
+			},
+			{
+				"name": "comp_price",
+				"type": "uint256"
+			},
+			{
+				"name": "stakeholders",
+				"type": "address[]"
+			},
+			{
+				"name": "stakes",
+				"type": "uint256[]"
+			}
+		],
+		"name": "addEntry",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "num_bought",
+		"outputs": [
+			{
+				"name": "",
+				"type": "int256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "media_id",
+				"type": "bytes32"
+			}
+		],
+		"name": "buy",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "users",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "PublicKey",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"name": "media_id",
+				"type": "bytes32"
+			},
+			{
+				"name": "link",
+				"type": "string"
+			}
+		],
+		"name": "sendLink",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "i",
+				"type": "uint256"
+			}
+		],
+		"name": "setRole",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "num_mybought",
+		"outputs": [
+			{
+				"name": "",
+				"type": "int256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "num_media",
+		"outputs": [
+			{
+				"name": "",
+				"type": "int256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "media_list",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "num_owned",
+		"outputs": [
+			{
+				"name": "",
+				"type": "int256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "getCompPrice",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "mybought",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "title",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "price_indi",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "price_comp",
+				"type": "uint256"
+			}
+		],
+		"name": "AddedMedia",
+		"type": "event"
+	}
+]
+		var add= "0x2ced8b6370e952ee8476bf9094442fa0dc1de4d3";
+  		var myContract = web3.eth.contract(abi);
+        var contract_data = myContract.at(add);
+        
+
+        web3.eth.getBalance(web3.eth.defaultAccount, function (error, wei) {
+            if (!error) {
+                var balance = web3.fromWei(wei, 'ether');
+                document.getElementById("balance").innerHTML = balance + " ETH";
+            }
+        });
+
+        var num_media = contract_data.num_media.call();
+        var i;
+        for (i = 0; i< num_media;i++){
+            var media_bytes = contract_data.media_list.call(i);
+            var media = contract_data.getMedia.call(media_bytes);
+            if (!contract_data.bought.call(media_bytes,web3.eth.defaultAccount)){
+                var buy_option = document.createElement("OPTION");
+                buy_option.value = media[0];
+                buy_option.innerHTML = media[2];
+                document.getElementById("Buyable").appendChild(buy_option);
+            }
+		}
+		console.log(web3.eth.defaultAccount)
+		var num_mybought = contract_data.num_mybought.call(web3.eth.defaultAccount);
+		var j = 0;
+		console.log(num_mybought);
+		console.log("ok");
+		try{
+			for (j = 0; j< 10; j++){
+			console.log("here2");
+			var media_bytes=contract_data.media_boughtby.call(web3.eth.defaultAccount,j)
+			if (contract_data.link_sent.call(media_bytes,web3.eth.defaultAccount)){
+				console.log("here");
+				var link_option = document.createElement("OPTION");
+				var tempMedia = contract_data.getMedia.call(media_bytes);
+				link_option.value = tempMedia[0];
+				link_option.innerHTML = tempMedia[2];
+				document.getElementById("Bought").appendChild(link_option);
+			}
+		}
+		}
+		catch(err){
+			
+		}
+
+		function getLink(media_bytes){
+			var k = contract_data.links.call(web3.eth.defaultAccount,media_bytes);
+			document.getElementById("LINK").innerHTML = k;
+		}
+
+        function getPrice(mediaTitle){
+            if (mediaTitle=="") return;
+            if (contract_data.users.call(web3.eth.defaultAccount) == 2){
+                var price = web3.fromWei(contract_data.getIndiPrice.call(mediaTitle), 'ether');
+            }
+            else if (contract_data.users.call(web3.eth.defaultAccount) == 3){
+                var price = web3.fromWei(contract_data.getCompPrice.call(mediaTitle), 'ether');
+            }
+            document.getElementById("Price").innerHTML = "Price: "+price;
+        }
+
+        $("#Buy").click(function() {
+            window.alert("You bought this media!");
+            var mediaTitle = $("#Buyable").val();
+            if (contract_data.users.call(web3.eth.defaultAccount) == 2){
+                var price = contract_data.getIndiPrice.call(mediaTitle);
+            }
+            else if (contract_data.users.call(web3.eth.defaultAccount) == 3){
+                var price = contract_data.getCompPrice.call(mediaTitle);
+            }
+            contract_data.buy(mediaTitle,{value:price,gas:900000})
+            window.location.reload();
+        });
+
+    </script>
+
+</body>
+</html>
